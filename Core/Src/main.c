@@ -53,7 +53,7 @@ CAN_TxHeaderTypeDef canTxHeader;
 CAN_FilterTypeDef sFilterConfig;
 uint8_t canTxData[8];
 uint8_t canRxData[8];
-uint8_t rcvdData;
+uint32_t rcvdData;
 uint32_t canTxMailBox;
 /* USER CODE END PV */
 
@@ -72,6 +72,9 @@ static void MX_SPI2_Init(void);
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
   HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &canRxHeader, canRxData);
+  if(canRxHeader.ExtId == 0x18feef00){
+
+  }
   rcvdData = canRxData[0];
 
 }
@@ -151,8 +154,10 @@ int main(void)
 	  canTxData[0] = coolantTemp;
 	  HAL_CAN_AddTxMessage(&hcan, &canTxHeader, canTxData, &canTxMailBox);
 
-	  if(rcvdData)
+	  if(rcvdData){
 		  HAL_UART_Transmit(&huart1, &rcvdData, 4, 0);
+		  rcvdData = 0;
+	  }
 	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
